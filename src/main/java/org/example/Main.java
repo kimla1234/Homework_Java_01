@@ -44,11 +44,11 @@ public class Main {
                     break;
                 }
                 case 'D' :{
-                    rebootSeat(morning,afternoon,night,bookingHistory);
+                    rebootShowtime(morning,afternoon,night,bookingHistory);
                     break ;
                 }
                 case 'E' :{
-                    displayBookingHistory(bookingHistory);
+                    showBookingHistory(bookingHistory);
                     break;
                 }
                 case 'F' :{
@@ -66,7 +66,6 @@ public class Main {
         System.out.print(" => Please Select Show Time ( A | B | C  ) :  ");
         char showTimeChoice = getCharWithRegex(scanner, "[a-cA-C]" , "( A-C )"," => Please Select Show Time ( A | B | C  ) : ");
         String[][] hall = getHall(morning, afternoon, night, showTimeChoice);
-        assert hall != null;
         System.out.println("-----------------------------------------------------------------------------------");
         displayHall(hall,showTimeChoice);  // Show One hall by time
         String[] selectedSeats = selectedSeatsHall();
@@ -87,19 +86,19 @@ public class Main {
                         if (hall[i][j].equals("BO")) {
                             System.out.println("-----------------------------------------------------------------------------------");
                             System.out.println("                               !  ["+seatAlphabet+"-"+(1+j)+"] Already booked !");
-                            System.out.println("-----------------------------------------------------------------------------------");
                             isBookingSuccessful = false;
                         }
                         else {
                             if(validateInputUser) {
                                 userName = getStringWithRegex(scanner, "^[a-zA-Z0-9_]+$","your name", "=> Please enter userName : ");
-                                System.out.print("> Are you sure to book? (Y/N) : ");
+                                System.out.print(" => Are you sure to book? (Y/N) : ");
                                 confirmation = getCharWithRegex(scanner, "[yYNn]+", "( Y or N )","=> Are you sure to book? (Y/N) :");
                                 validateInputUser = false;
                             }
                             if (confirmation == 'y' || confirmation == 'Y' ) {
                                 hall[i][j] = "BO";
-                                String history = addToHidtorys( Arrays.toString(selectedSeats), userName ,showTimeChoice);
+                                int historyNumber = 1+i;
+                                String history = addToHidtorys( Arrays.toString(selectedSeats), userName ,showTimeChoice,historyNumber);
                                 updatedHistory[updatedHistory.length - 1] = history;
                             }else {
                                 System.out.println("-----------------------------------------------------------------------------------");
@@ -118,14 +117,14 @@ public class Main {
         }
         return updatedHistory;
     }
-    private static void showTimeInformation() {
+    public static void showTimeInformation() {
         System.out.println("\n---------------------------{ Start Booking Process }-----------------------------");
         System.out.println("\n # Showtime Information ");
-        System.out.println(" > A < : Morning ( 10:00AM - 11:40PM )");
-        System.out.println(" > B < : Afternoon ( 12:00AM - 1:50PM )");
-        System.out.println(" > C < : Night ( 7:40AM - 9:00PM )\n");
+        System.out.println(" A : Morning ( 10:00AM - 11:40PM )");
+        System.out.println(" B : Afternoon ( 12:00AM - 1:50PM )");
+        System.out.println(" C : Night ( 7:40AM - 9:00PM )\n");
     }
-    private static String[] selectedSeatsHall() {
+    public static String[] selectedSeatsHall() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("-----------------------------------------------------------------------------------");
         System.out.println("\n# INSTRUCTION :");
@@ -135,12 +134,12 @@ public class Main {
         String[] seatArray = userInput.split(",");
         return seatArray;
     }
-    private static void Hall(String[][] morning, String[][] afternoon, String[][] night) {
+    public static void Hall(String[][] morning, String[][] afternoon, String[][] night) {
         System.out.println("---------------------------------------------------------------------------------");
         System.out.println("# Hall: (A) Morning");
         for (int i = 0; i < morning.length; i++) {
             for (int j = 0; j < morning[i].length; j++) {
-                System.out.print("|" + (char) ('A' + i) + "-" + (j + 1) + " :: " + morning[i][j] + "|  ");
+                System.out.print("   |" + (char) ('A' + i) + "-" + (j + 1) + " :: " + morning[i][j] + "|  ");
             }
             System.out.println();
         }
@@ -148,7 +147,7 @@ public class Main {
         System.out.println("# Hall: (B) Afternoon");
         for (int i = 0; i < afternoon.length; i++) {
             for (int j = 0; j < afternoon[i].length; j++) {
-                System.out.print("|" + (char) ('A' + i) + "-" + (j + 1) + " :: " + afternoon[i][j] + "|  ");
+                System.out.print("   |" + (char) ('A' + i) + "-" + (j + 1) + " :: " + afternoon[i][j] + "|  ");
             }
             System.out.println();
         }
@@ -156,7 +155,7 @@ public class Main {
         System.out.println("# Hall: (C) Night");
         for (int i = 0; i < night.length; i++) {
             for (int j = 0; j < night[i].length; j++) {
-                System.out.print("|" + (char) ('A' + i) + "-" + (j + 1) + " :: " + night[i][j] + "|  ");
+                System.out.print("   |" + (char) ('A' + i) + "-" + (j + 1) + " :: " + night[i][j] + "|  ");
             }
             System.out.println();
         }
@@ -165,37 +164,25 @@ public class Main {
         System.out.println("# Hall : "+ ch);
         for (int i = 0; i < hall.length; i++) {
             for (int j = 0; j < hall[i].length; j++) {
-                System.out.print("|" + (char) ('A' + i) + "-" + (j + 1) + " :: " + hall[i][j] + "|  ");
+                System.out.print("  |" + (char) ('A' + i) + "-" + (j + 1) + " :: " + hall[i][j] + "|  ");
             }
             System.out.println();
         }
 
         return new String[0];
     }
-    private static String addToHidtorys(String seat, String userName, char ch) {
+    public static String addToHidtorys(String seat, String userName, char ch,int historyNumber) {
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/y hh:mm");
         String formattedDateTime = localDateTime.format(formatter);
         char hall = Character.toUpperCase(ch);
         return String.format(
-                "#No : " +
+                "#No :  %d" +
                         "\n#SEATS : " + seat +
-                        "\n#HALL           #USER                                     #Crete at" +
-                        "\n  %-10s   %-20s                  %-15s"
-                ,hall,userName,formattedDateTime
+                        "\n#HALL           #USER                                        #CREATED AT" +
+                        "\n  %-10s     %-23s                  %-20s"
+                ,historyNumber,hall,userName,formattedDateTime
         );
-    }
-    public static void displayBookingHistory(String[] bookingHistory) {
-        System.out.println("# Booking History:");
-        if (bookingHistory[0] == null) {
-            System.out.println("-----------------------------------------------------------------------------------");
-            System.out.println("                          There is no history");
-        } else {
-            for (String history : bookingHistory) {
-                System.out.println("-----------------------------------------------------------------------------------");
-                System.out.println(history);
-            }
-        }
     }
     public static String[][] getHall(String[][] morning, String[][] afternoon, String[][] night, char ch) {
         switch (Character.toUpperCase(ch)) {
@@ -206,9 +193,8 @@ public class Main {
             case 'C':
                 return night;
             default:
-                // Handle the case when ch is not 'A', 'B', or 'C'
                 System.out.println("Invalid showtime choice.");
-                return null; // Or return an appropriate default value or throw an exception.
+                return null;
         }
     }
     public static void initializeHall (String[][] morning, String[][] afternoon, String[][] night) {
@@ -217,28 +203,40 @@ public class Main {
         initHall(night);
     }
     public static void initHall(String[][] hall){
-        for (String[] strings: hall) {
-            Arrays.fill(strings, "AV");
+        for (int i = 0; i < hall.length; i++) {
+            for (int j = 0; j < hall[i].length; j++) {
+                hall[i][j] = "AV";
+            }
         }
     }
-    public static void rebootSeat(String[][] morning, String[][] afternoon, String[][] night, String[] bookingHistory) {
+    public static void showBookingHistory(String[] bookingHistory) {
+        if (bookingHistory[0] == "") {
+            System.out.println("-----------------------------------------------------------------------------------");
+            System.out.println("                          There is no history");
+        } else {
+            for (String history : bookingHistory) {
+                System.out.println("-----------------------------------------------------------------------------------");
+                System.out.println(history);
+            }
+        }
+    }
+    public static void rebootShowtime(String[][] morning, String[][] afternoon, String[][] night, String[] bookingHistory) {
         Scanner scanner = new Scanner(System.in);
         System.out.print(" => Are you Soure to Reboot Hall ? (Y/N) : ");
-        char isSure = getCharWithRegex(scanner,"[YyNn]+","( Y or N )"," Please input Y or N :");
-        isSure = Character.toUpperCase(isSure);
-        if (isSure == 'Y'){
+        char isChoise = getCharWithRegex(scanner,"[YyNn]+","( Y or N )"," => Please input Y or N :");
+        isChoise = Character.toUpperCase(isChoise);
+        if (isChoise == 'Y'){
             initHall(morning);
             initHall(afternoon);
             initHall(night);
             clearHistory(bookingHistory);
         }
-
     }
     public static void clearHistory(String[] bookingHistory) {
-        System.out.println("-----------------------------------------------------------------------------------");
         for (int i = 0; i < bookingHistory.length; i++) {
-            bookingHistory[i] = null;
+            bookingHistory[i] = "                      There is no history";
         }
+        System.out.println("-----------------------------------------------------------------------------------");
         System.out.println("                           Booking history cleared.");
     }
 
